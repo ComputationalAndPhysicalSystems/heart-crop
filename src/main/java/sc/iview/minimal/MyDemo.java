@@ -38,13 +38,20 @@ import ij.gui.PointRoi;
 import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 import net.imagej.Dataset;
+import net.imagej.mesh.Mesh;
+import net.imagej.mesh.naive.NaiveDoubleMesh;
+import net.imagej.ops.OpService;
+import net.imagej.ops.geom.geom3d.DefaultConvexHull3D;
 import org.scijava.command.Command;
+import org.scijava.command.DynamicCommand;
+import org.scijava.command.InteractiveCommand;
 import org.scijava.io.IOService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
 import org.scijava.util.Colors;
+import org.scijava.widget.Button;
 import sc.iview.SciView;
 import sc.iview.vector.ClearGLVector3;
 import sc.iview.vector.Vector3;
@@ -52,6 +59,7 @@ import sc.iview.vector.Vector3;
 import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 import static sc.iview.commands.MenuWeights.DEMO;
 import static sc.iview.commands.MenuWeights.DEMO_LINES;
@@ -64,7 +72,7 @@ import static sc.iview.commands.MenuWeights.DEMO_LINES;
 @Plugin(type = Command.class, label = "My Demo", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "My Demo") })
-public class MyDemo implements Command {
+public class MyDemo extends InteractiveCommand {
 
     @Parameter
     private SciView sciView;
@@ -75,15 +83,22 @@ public class MyDemo implements Command {
     @Parameter
     private IOService ioService;
 
+    @Parameter
+    private OpService opService;
+
+    @Parameter(callback = "createMesh")
+    private Button createMesh;
+
     private RoiManager roiManager;
     private Dataset img = null;
     private Volume volume = null;
     private HashMap<PointRoi, Node> scPoints;
     private float[] resolution = new float[]{(float) 0.6500002, (float) 0.6500002, 2f};
+    private Mesh currentMesh = null;
+    private Node currentMeshNode = null;
 
     @Override
-    public void run() {
-
+    public void initialize() {
         String filename = "/home/kharrington/Data/Anjalie/C1-fish4_z_stack_red.tif";
 
         try {
@@ -96,6 +111,7 @@ public class MyDemo implements Command {
 
         roiManager = new RoiManager();
         IJ.setTool("point");
+        roiManager.runCommand("Open","/home/kharrington/git/heart-crop/Demo_RoiSet.zip");
 
         volume = (Volume) sciView.addVolume(img, resolution);
         volume.setPixelToWorldRatio(0.1f);
@@ -103,7 +119,6 @@ public class MyDemo implements Command {
         scPoints = new HashMap<>();
 
         sciView.animate(1, this::syncRoiManager );
-
     }
 
     /*
@@ -112,9 +127,9 @@ public class MyDemo implements Command {
     public void syncRoiManager() {
         //System.out.println("Syncing ROIManager");
         // Remove previous children
-        for( Node n : volume.getChildren() ) {
-            volume.removeChild(n);
-        }
+//        for( Node n : volume.getChildren() ) {
+//            volume.removeChild(n);
+//        }
 
         // Add new children for each point ROI
         for(Roi r : roiManager.getRoisAsArray() ) {
@@ -129,6 +144,47 @@ public class MyDemo implements Command {
                 //s.setParent(volume);
                 sciView.addNode(s,false);
             }
+        }
+    }
+
+    /* Create a ConvexHulls of controlPoints */
+    public void createMesh() {
+        Mesh mesh = new NaiveDoubleMesh();
+
+        System.out.println("Populating point set");
+        for(Roi r : roiManager.getRoisAsArray() ) {
+            if( r instanceof PointRoi ) {
+                Sphere s = new Sphere(0.02f, 10);
+                Point p = r.iterator().next();
+                float sf = 0.01f;
+                float x = ( p.x - volume.getSizeX()/2 ) * resolution[0] * volume.getPixelToWorldRatio() * sf;
+                float y = ( p.y - volume.getSizeY()/2 ) * resolution[1] * volume.getPixelToWorldRatio() * sf;
+                float z = ( ((PointRoi) r).getPointPosition(0) - volume.getSizeZ()/2 ) * resolution[2] * volume.getPixelToWorldRatio() * sf;
+                s.setPosition(new GLVector(x,y,z));
+                //s.setParent(volume);
+                sciView.addNode(s,false);
+                mesh.vertices().add(x, y, z);
+            }
+        }
+
+        System.out.println("Generating mesh");
+        // TODO coudl we just use marching cubes??
+        final List<?> result = (List<?>) opService.run(DefaultConvexHull3D.class, mesh );
+        Mesh hull = (Mesh) result.get(0);
+
+        System.out.println("Rendering mesh");
+        if( currentMesh != null ) {
+            sciView.deleteNode(currentMeshNode, true);
+        }
+
+        currentMesh = hull;
+        currentMeshNode = sciView.addMesh(hull);
+    }
+
+    @Override
+    public void cancel() {
+        for( Node n : volume.getChildren() ) {
+            volume.removeChild(n);
         }
     }
 
