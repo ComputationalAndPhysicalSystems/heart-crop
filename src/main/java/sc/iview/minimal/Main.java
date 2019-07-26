@@ -48,7 +48,7 @@ public final class Main {
 	public static void main(final String... args) {
 		final ImageJ ij = new ImageJ();
 		ij.launch(args);
-		ij.command().run("sc.iview.minimal.MyDemo", true, new Object[]{} );
+		//ij.command().run("sc.iview.minimal.MyDemo", true, new Object[]{} );
 	}
 
 }
