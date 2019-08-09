@@ -9,17 +9,17 @@
 		<relativePath />
 	</parent>
 
-	<groupId>sc.iview</groupId>
-	<artifactId>minimal-sciview-example-project</artifactId>
+	<groupId>com.capsidaho</groupId>
+	<artifactId>heart-crop</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>minimal-sciview-example-project</name>
-	<description>This is a minimal SciView project.</description>
+	<name>heart-crop</name>
+	<description>This is a demo application for 3D cropping/segmentation of zebrafish hearts.</description>
 	<url>http://sc.iview.sc/</url>
-	<inceptionYear>2018</inceptionYear>
+	<inceptionYear>2019</inceptionYear>
 	<organization>
-		<name>graphics.scenery</name>
-		<url>http://scenery.graphics/</url>
+		<name>com.capsidaho</name>
+		<url>https://capsidaho.com/</url>
 	</organization>
 	<licenses>
 		<license>
@@ -60,27 +60,27 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/scenerygraphics/minimal-sciview-example-project</connection>
-		<developerConnection>scm:git:git@github.com:scenerygraphics/minimal-sciview-example-project</developerConnection>
+		<connection>scm:git:git://github.com/kephale/heart-crop</connection>
+		<developerConnection>scm:git:git@github.com:kephale/heart-crop</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/scenerygraphics/minimal-sciview-example-project</url>
+		<url>https://github.com/kephale/heart-crop</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/scenerygraphics/minimal-sciview-example-project/issues</url>
+		<url>https://github.com/kephale/heart-crop/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>Travis CI</system>
-		<url>https://travis-ci.org/scenerygraphics/minimal-sciview-example-project</url>
+		<url>https://travis-ci.org/kephale/heart-crop</url>
 	</ciManagement>
 
 	<properties>
-		<main-class>sc.iview.minimal.Main</main-class>
-		<package-name>net.imagej</package-name>
+		<main-class>com.capsidaho.heartcrop.Main</main-class>
+		<package-name>com.capsidaho</package-name>
 
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Board of Regents of the University of Idaho.</license.copyrightOwners>
-		<license.projectName>Minimal sciview.</license.projectName>
+		<license.projectName>Heart crop.</license.projectName>
 
 		<sciview.version>1b5f96d</sciview.version>
 		<scenery.version>5b86e130</scenery.version>

@@ -29,14 +29,12 @@
  * #L%
  */
 
-package sc.iview.minimal;
+package com.capsidaho.heartcrop;
 
 import net.imagej.ImageJ;
 
 /**
- * Launches ImageJ.
- * 
- * @author Curtis Rueden
+ * Launch ImageJ+SciView and run heart crop
  */
 public final class Main {
 
@@ -48,7 +46,7 @@ public final class Main {
 	public static void main(final String... args) {
 		final ImageJ ij = new ImageJ();
 		ij.launch(args);
-		//ij.command().run("sc.iview.minimal.MyDemo", true, new Object[]{} );
+		ij.command().run("com.capsidaho.heartcrop.HeartCrop", true, new Object[]{} );
 	}
 
 }

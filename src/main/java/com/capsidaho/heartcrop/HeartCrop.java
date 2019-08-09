@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package sc.iview.minimal;
+package com.capsidaho.heartcrop;
 
 import cleargl.GLVector;
 import edu.mines.jtk.ogl.Gl;
@@ -80,7 +80,7 @@ import static sc.iview.commands.MenuWeights.DEMO_LINES;
 @Plugin(type = Command.class, label = "My Demo", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
                  @Menu(label = "My Demo") })
-public class MyDemo extends InteractiveCommand {
+public class HeartCrop extends InteractiveCommand {
 
     @Parameter
     private SciView sciView;
