@@ -80,7 +80,7 @@ import static sc.iview.commands.MenuWeights.DEMO_LINES;
  */
 @Plugin(type = Command.class, label = "My Demo", menuRoot = "SciView", //
         menu = { @Menu(label = "Demo", weight = DEMO), //
-                 @Menu(label = "My Demo") })
+                 @Menu(label = "3D Crop") })
 public class HeartCrop extends InteractiveCommand {
 
     @Parameter
