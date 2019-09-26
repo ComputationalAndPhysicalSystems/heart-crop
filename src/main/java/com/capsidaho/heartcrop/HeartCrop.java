@@ -50,6 +50,7 @@ import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
 import org.scijava.command.InteractiveCommand;
 import org.scijava.io.IOService;
+import org.scijava.log.LogService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -94,14 +95,19 @@ public class HeartCrop extends InteractiveCommand {
     @Parameter
     private OpService opService;
 
+    @Parameter
+    private LogService logService;
+
     @Parameter(callback = "createMesh")
     private Button createMesh;
 
     @Parameter(callback = "crop")
     private Button crop;
 
+    @Parameter
+    private Dataset img;
+
     private RoiManager roiManager;
-    private Dataset img = null;
     private Dataset croppedImg = null;
     private Volume volume = null;
     private HashMap<PointRoi, Node> scPoints;
@@ -111,19 +117,19 @@ public class HeartCrop extends InteractiveCommand {
 
     @Override
     public void initialize() {
-        String filename = "/home/kharrington/Data/Anjalie/C1-fish4_z_stack_red.tif";
+        roiManager = RoiManager.getRoiManager();
 
-        try {
-            img = (Dataset) ioService.open(filename);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        uiService.show(img);
-
-        roiManager = new RoiManager();
-        IJ.setTool("point");
-        roiManager.runCommand("Open","/home/kharrington/git/heart-crop/Demo_RoiSet.zip");
+//        String filename = "/home/kharrington/Data/Anjalie/C1-fish4_z_stack_red.tif";
+//
+//        try {
+//            img = (Dataset) ioService.open(filename);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        uiService.show(img);
+//        IJ.setTool("point");
+//        roiManager.runCommand("Open","/home/kharrington/git/heart-crop/Demo_RoiSet.zip");
 
         volume = (Volume) sciView.addVolume(img, resolution);
         volume.setPixelToWorldRatio(0.1f);
@@ -163,7 +169,7 @@ public class HeartCrop extends InteractiveCommand {
     public void createMesh() {
         Mesh mesh = new NaiveDoubleMesh();
 
-        System.out.println("Populating point set");
+        logService.info("Populating point set");
         for(Roi r : roiManager.getRoisAsArray() ) {
             if( r instanceof PointRoi ) {
                 Sphere s = new Sphere(0.02f, 10);
@@ -179,12 +185,12 @@ public class HeartCrop extends InteractiveCommand {
             }
         }
 
-        System.out.println("Generating mesh");
+        logService.info("Generating mesh");
         // TODO coudl we just use marching cubes??
         final List<?> result = (List<?>) opService.run(DefaultConvexHull3D.class, mesh );
         Mesh hull = (Mesh) result.get(0);
 
-        System.out.println("Rendering mesh");
+        logService.info("Rendering mesh");
         if( currentMesh != null ) {
             sciView.deleteNode(currentMeshNode, true);
         }
@@ -228,14 +234,14 @@ public class HeartCrop extends InteractiveCommand {
 			samples[2][i] = z;
 			i++;
 		}
-		System.out.println( "Min: " + minX + " " + minY + " " + minZ + " -> " + maxX + " " + maxY + " " + maxZ );
+		logService.info( "Min: " + minX + " " + minY + " " + minZ + " -> " + maxX + " " + maxY + " " + maxZ );
 		RealType xType = RealType.getRealType("X");
 		RealType yType = RealType.getRealType("Y");
 		RealType zType = RealType.getRealType("Z");
 		RealType[] xyz = {xType, yType, zType};
 		RealTupleType xyzType = new RealTupleType(xyz);
 		Irregular3DSet set = new Irregular3DSet(xyzType, samples);
-		System.out.println("Triangulation computed");
+		logService.info("Triangulation computed");
 
 		// Wrap as a RealMask.
 		RealMask roi = new RealMask() {
@@ -264,7 +270,7 @@ public class HeartCrop extends InteractiveCommand {
 			@Override
 			public int numDimensions() { return 3; }
 		};
-		System.out.println("ROI created: " + roi);
+		logService.info("ROI created: " + roi);
 
 		class Tester {
             public RealPoint getPoint() {
@@ -294,6 +300,8 @@ public class HeartCrop extends InteractiveCommand {
         newVol.setPixelToWorldRatio(0.1f);
         volume.setVisible(false);
         currentMeshNode.setVisible(false);
+
+        uiService.show("Cropped image", croppedImg);
     }
 
     @Override

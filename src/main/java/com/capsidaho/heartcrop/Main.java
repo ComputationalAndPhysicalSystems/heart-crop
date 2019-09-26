@@ -31,7 +31,15 @@
 
 package com.capsidaho.heartcrop;
 
+import ij.IJ;
+import ij.plugin.frame.RoiManager;
+import io.scif.SCIFIOService;
+import net.imagej.Dataset;
 import net.imagej.ImageJ;
+import org.scijava.io.IOService;
+import org.scijava.ui.UIService;
+
+import java.io.IOException;
 
 /**
  * Launch ImageJ+SciView and run heart crop
@@ -46,6 +54,28 @@ public final class Main {
 	public static void main(final String... args) {
 		final ImageJ ij = new ImageJ();
 		ij.launch(args);
+
+		RoiManager roiManager = RoiManager.getRoiManager();
+        String filename = "/home/kharrington/Data/Anjalie/C1-fish4_z_stack_red.tif";
+
+        Dataset img = null;
+        try {
+        	img = (Dataset) ij.context().service(IOService.class).open(filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        ij.context().service(UIService.class).show(img);
+        IJ.setTool("point");
+        roiManager.runCommand("Open","/home/kharrington/git/heart-crop/Demo_RoiSet.zip");
+
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		ij.command().run("com.capsidaho.heartcrop.HeartCrop", true, new Object[]{} );
 	}
 
