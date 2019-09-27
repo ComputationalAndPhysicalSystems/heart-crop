@@ -78,6 +78,8 @@
 		<main-class>com.capsidaho.heartcrop.Main</main-class>
 		<package-name>com.capsidaho</package-name>
 
+		<enforcer.skip>true</enforcer.skip>
+
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Board of Regents of the University of Idaho.</license.copyrightOwners>
 		<license.projectName>Heart crop.</license.projectName>
