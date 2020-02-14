@@ -84,8 +84,8 @@
 		<license.copyrightOwners>Board of Regents of the University of Idaho.</license.copyrightOwners>
 		<license.projectName>Heart crop.</license.projectName>
 
-		<sciview.version>964da48</sciview.version>
-		<scenery.version>8ae3290</scenery.version>
+		<sciview.version>064d0ec</sciview.version>
+		<scenery.version>7d3b58a</scenery.version>
 
 		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
 		<releaseProfiles>deploy-to-imagej</releaseProfiles>

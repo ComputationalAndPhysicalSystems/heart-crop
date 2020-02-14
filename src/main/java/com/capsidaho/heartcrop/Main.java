@@ -38,6 +38,7 @@ import net.imagej.Dataset;
 import net.imagej.ImageJ;
 import org.scijava.io.IOService;
 import org.scijava.ui.UIService;
+import sc.iview.SciView;
 
 import java.io.IOException;
 
@@ -52,11 +53,14 @@ public final class Main {
 
 
 	public static void main(final String... args) {
-		final ImageJ ij = new ImageJ();
+		SciView sciView = SciView.createSciView();
+
+		final ImageJ ij = new ImageJ(sciView.getScijavaContext());
 		ij.launch(args);
 
 		RoiManager roiManager = RoiManager.getRoiManager();
-        String filename = "/home/kharrington/Data/Anjalie/C1-fish4_z_stack_red.tif";
+		String filename = "/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z.tif";
+        //String filename = "/home/kharrington/Data/Anjalie/C1-fish4_z_stack_red.tif";
 
         Dataset img = null;
         try {
@@ -68,7 +72,10 @@ public final class Main {
 
         ij.context().service(UIService.class).show(img);
         IJ.setTool("point");
-        roiManager.runCommand("Open","/home/kharrington/git/heart-crop/Demo_RoiSet.zip");
+
+
+
+        roiManager.runCommand("Open","/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z_roiset.zip");
 
 		try {
 			Thread.sleep(200);

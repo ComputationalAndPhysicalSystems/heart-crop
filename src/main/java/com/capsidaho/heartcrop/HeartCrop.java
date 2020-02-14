@@ -43,9 +43,12 @@ import net.imagej.mesh.Vertex;
 import net.imagej.mesh.naive.NaiveDoubleMesh;
 import net.imagej.ops.OpService;
 import net.imagej.ops.geom.geom3d.DefaultConvexHull3D;
+import net.imglib2.IterableInterval;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
 import net.imglib2.RealPoint;
 import net.imglib2.roi.RealMask;
+import net.imglib2.view.Views;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
 import org.scijava.command.InteractiveCommand;
@@ -131,7 +134,7 @@ public class HeartCrop extends InteractiveCommand {
 //        IJ.setTool("point");
 //        roiManager.runCommand("Open","/home/kharrington/git/heart-crop/Demo_RoiSet.zip");
 
-        volume = (Volume) sciView.addVolume(img, resolution);
+        volume = (Volume) sciView.addVolume((IterableInterval) Views.hyperSlice(img, 3, 0), "original", resolution);
         volume.setPixelToWorldRatio(0.1f);
 
         scPoints = new HashMap<>();
@@ -289,14 +292,15 @@ public class HeartCrop extends InteractiveCommand {
 		Tester t = new Tester();
 
 		net.imglib2.Cursor<net.imglib2.type.numeric.RealType<?>> cur = croppedImg.cursor();
-		double[] p = new double[3];
+		double[] p = new double[4];
 		while(cur.hasNext()) {
 		    cur.next();
 		    cur.localize(p);
 		    if( !t.inside(p) ) cur.get().setZero();
         }
 
-        Volume newVol = (Volume) sciView.addVolume(croppedImg, resolution);
+		//Volume newVol = (Volume) sciView.addVolume(croppedImg, resolution);
+        Volume newVol = (Volume) sciView.addVolume((IterableInterval)Views.hyperSlice(croppedImg,3,0), "cropped", resolution);
         newVol.setPixelToWorldRatio(0.1f);
         volume.setVisible(false);
         currentMeshNode.setVisible(false);
