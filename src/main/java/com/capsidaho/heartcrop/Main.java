@@ -31,6 +31,7 @@
 
 package com.capsidaho.heartcrop;
 
+import graphics.scenery.SceneryBase;
 import ij.IJ;
 import ij.plugin.frame.RoiManager;
 import io.scif.SCIFIOService;
@@ -41,6 +42,8 @@ import org.scijava.ui.UIService;
 import sc.iview.SciView;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Launch ImageJ+SciView and run heart crop
@@ -53,9 +56,12 @@ public final class Main {
 
 
 	public static void main(final String... args) {
-		SciView sciView = SciView.createSciView();
+		SceneryBase.xinitThreads();
+		//SciView sciView = SciView.createSciView();
 
-		final ImageJ ij = new ImageJ(sciView.getScijavaContext());
+		//final ImageJ ij = new ImageJ(sciView.getScijavaContext());
+
+		final ImageJ ij = new ImageJ();
 		ij.launch(args);
 
 		RoiManager roiManager = RoiManager.getRoiManager();
@@ -73,7 +79,8 @@ public final class Main {
         ij.context().service(UIService.class).show(img);
         IJ.setTool("point");
 
-
+        Map<String, Object> argmap = new HashMap<>();
+        argmap.put("img", img);
 
         roiManager.runCommand("Open","/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z_roiset.zip");
 
@@ -83,7 +90,7 @@ public final class Main {
 			e.printStackTrace();
 		}
 
-		ij.command().run("com.capsidaho.heartcrop.HeartCrop", true, new Object[]{} );
+		ij.command().run("com.capsidaho.heartcrop.HeartCropMenu", true, argmap );
 	}
 
 }
