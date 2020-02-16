@@ -110,7 +110,7 @@ public class HeartCropMenu extends InteractiveCommand {
     private Dataset croppedImg = null;
     private Volume volume = null;
     private HashMap<PointRoi, Node> scPoints;
-    private float[] resolution = new float[]{(float) 0.6500002, (float) 0.6500002, 2f};
+    private float[] resolution = new float[]{(float) 1, (float)1, 1f};
     private Mesh currentMesh = null;
     private Node currentMeshNode = null;
 
@@ -120,10 +120,6 @@ public class HeartCropMenu extends InteractiveCommand {
     public void initialize() {
         roiManager = RoiManager.getRoiManager();
 
-        float[] resolution = new float[img.numDimensions()];
-        for( int d = 0; d < resolution.length; d++ ) {
-            resolution[d] = (float) img.axis(d).averageScale(0, 1);
-        }
 
         scPoints = new HashMap<>();
     }
@@ -152,6 +148,11 @@ public class HeartCropMenu extends InteractiveCommand {
 
     public void createMesh() {
         CreateMesh cm = new CreateMesh();
+
+        float[] resolution = new float[img.numDimensions()];
+        for( int d = 0; d < resolution.length; d++ ) {
+            resolution[d] = (float) img.axis(d).averageScale(0, 1);
+        }
 
         cm.setImg(img);
         cm.setResolution(resolution);
