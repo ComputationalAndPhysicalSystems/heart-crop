@@ -30,6 +30,7 @@ package com.capsidaho.heartcrop;
 
 import graphics.scenery.Node;
 import graphics.scenery.volumes.Volume;
+import ij.IJ;
 import ij.gui.PointRoi;
 import ij.plugin.frame.RoiManager;
 import net.imagej.Dataset;
@@ -120,6 +121,8 @@ public class HeartCropMenu extends InteractiveCommand {
     public void initialize() {
         roiManager = RoiManager.getRoiManager();
 
+        IJ.setTool("point");
+        JOptionPane.showMessageDialog(null, "Select points to use in crop by clicking at the x,y,z location\nPress t to add each point (pointROI has been preselected).\nWhen complete createMesh");
 
         scPoints = new HashMap<>();
     }
