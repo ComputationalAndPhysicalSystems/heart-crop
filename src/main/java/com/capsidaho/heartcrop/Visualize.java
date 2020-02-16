@@ -17,13 +17,14 @@ import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import sc.iview.SciView;
+import sc.iview.SciViewService;
 
 import java.awt.*;
 
 @Plugin(type = Command.class, label = "Heart Crop - Crop")
 public class Visualize implements Command {
     @Parameter
-    private SciView sciView;
+    private SciViewService sciViewService;
 
     @Parameter
     private Dataset img;
@@ -60,23 +61,25 @@ public class Visualize implements Command {
 
     @Override
     public void run() {
+        SciView sciView = sciViewService.getOrCreateActiveSciView();
+
         roiManager = RoiManager.getRoiManager();
 
         IterableInterval<RealType> frame = Views.hyperSlice((RandomAccessibleInterval) img, 3, 0);
 
-        sciView.animate(1, this::syncRoiManager );
+        while( !sciView.isInitialized() ) {
+            try {
+                Thread.sleep(20);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //sciView.animate(1, this::syncRoiManager );
         sciView.addVolume(frame, "img", new float[]{(float) resolution[0], (float) resolution[1], (float) resolution[2]});
 
         syncRoiManager();
 
-    }
-
-    public SciView getSciView() {
-        return sciView;
-    }
-
-    public void setSciView(SciView sciView) {
-        this.sciView = sciView;
     }
 
     public Dataset getImg() {
@@ -101,5 +104,9 @@ public class Visualize implements Command {
 
     public void setResolution(float[] resolution) {
         this.resolution = resolution;
+    }
+
+    public void setSciViewService(SciViewService sciViewService) {
+        this.sciViewService = sciViewService;
     }
 }

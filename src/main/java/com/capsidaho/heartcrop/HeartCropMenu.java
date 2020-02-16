@@ -47,6 +47,7 @@ import org.scijava.plugin.Plugin;
 import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 import sc.iview.SciView;
+import sc.iview.SciViewService;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -86,6 +87,9 @@ public class HeartCropMenu extends InteractiveCommand {
 
     @Parameter
     private LogService logService;
+
+    @Parameter
+    private SciViewService sciViewService;
 
     @Parameter
     private CommandService command;
@@ -177,14 +181,18 @@ public class HeartCropMenu extends InteractiveCommand {
     }
 
     public void visualize() {
-        Visualize v = new Visualize();
 
-        v.setImg(img);
-        v.setMesh(currentMesh);
-        v.setResolution(resolution);
-        v.setSciView(SciView.createSciView());
+        JOptionPane.showMessageDialog(null, "Visualization temporarily disabled");
+        return;
 
-        v.run();
+//        Visualize v = new Visualize();
+//
+//        v.setImg(img);
+//        v.setMesh(currentMesh);
+//        v.setResolution(resolution);
+//        v.setSciViewService(sciViewService);
+//
+//        v.run();
     }
 
     @Override
