@@ -71,9 +71,9 @@ import static sc.iview.commands.MenuWeights.DEMO;
  *
  * @author Kyle Harrington
  */
-@Plugin(type = Command.class, label = "My Demo", menuRoot = "SciView", //
-        menu = { @Menu(label = "Demo", weight = DEMO), //
-                 @Menu(label = "3D Crop") })
+@Plugin(type = Command.class, label = "Interactive 3D Crop",
+        menu = { @Menu(label = "Image"), //
+                 @Menu(label = "Interactive 3D Crop") })
 public class HeartCropMenu extends InteractiveCommand {
 
     @Parameter
@@ -100,11 +100,11 @@ public class HeartCropMenu extends InteractiveCommand {
     @Parameter(callback = "visualize")
     private Button visualize;
 
-    @Parameter(callback = "crop")
-    private Button crop;
-
     @Parameter
     private Dataset img;
+
+    @Parameter(callback = "crop")
+    private Button crop;
 
     private RoiManager roiManager;
     private Dataset croppedImg = null;
