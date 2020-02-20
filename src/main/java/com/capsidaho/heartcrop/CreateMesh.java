@@ -44,6 +44,10 @@ public class CreateMesh implements Command {
         /* Create a ConvexHulls of controlPoints */
         mesh = new NaiveDoubleMesh();
 
+        resolution[0] = 1;
+        resolution[1] = 1;
+        resolution[2] = 1;
+
         logService.info("Populating point set");
         for(Roi r : roiManager.getRoisAsArray() ) {
             if( r instanceof PointRoi) {
@@ -53,6 +57,8 @@ public class CreateMesh implements Command {
                 float y = (float) (p.y * resolution[1]);
                 float z = (float) (((PointRoi) r).getPointPosition(0) * resolution[2]);
                 mesh.vertices().add(x, y, z);
+
+                //System.out.println("V: " + x + " " + y + " " + z);
             }
         }
 

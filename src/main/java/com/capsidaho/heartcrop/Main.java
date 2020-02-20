@@ -65,8 +65,10 @@ public final class Main {
 		ij.launch(args);
 
 		RoiManager roiManager = RoiManager.getRoiManager();
-		String filename = "/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z.tif";
+		//String filename = "/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z.tif";
         //String filename = "/home/kharrington/Data/Anjalie/C1-fish4_z_stack_red.tif";
+
+		String filename = "/home/kharrington/Data/Anjalie/190417_Cropp_fail/5D_Merged_crop_GFP_original_subset.tif";
 
         Dataset img = null;
         try {
@@ -82,7 +84,8 @@ public final class Main {
         Map<String, Object> argmap = new HashMap<>();
         argmap.put("img", img);
 
-        roiManager.runCommand("Open","/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z_roiset.zip");
+        roiManager.runCommand("Open","/home/kharrington/Data/Anjalie/190417_Cropp_fail/RoiSet.zip");
+		//roiManager.runCommand("Open","/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z_roiset.zip");
 
 		try {
 			Thread.sleep(200);

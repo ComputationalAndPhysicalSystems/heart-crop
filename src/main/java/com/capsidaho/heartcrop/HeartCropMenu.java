@@ -101,6 +101,9 @@ public class HeartCropMenu extends InteractiveCommand {
     @Parameter(callback = "visualize")
     private Button visualize;
 
+    @Parameter(callback = "generateMask")
+    private Button generateMask;
+
     @Parameter
     private Dataset img;
 
@@ -168,8 +171,23 @@ public class HeartCropMenu extends InteractiveCommand {
         System.out.println("Mesh created: " + cropMesh);
     }
 
+    public void generateMask() {
+        if( cropMesh == null )  {
+            JOptionPane.showMessageDialog(null, "Mesh has not been computed, cannot crop. Run CreateMesh");
+            return;
+        }
+        GenerateMask g = new GenerateMask();
+
+        g.setImg(img);
+        g.setMesh(cropMesh);
+        g.setLogService(logService);
+        g.setOpService(opService);
+
+        g.run();
+        System.out.println("Generate mask complete");
+    }
+
     public void crop() {
-        // TODO check and warn if mesh isn't computed
         if( cropMesh == null )  {
             JOptionPane.showMessageDialog(null, "Mesh has not been computed, cannot crop. Run CreateMesh");
             return;
