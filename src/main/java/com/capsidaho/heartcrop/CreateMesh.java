@@ -9,6 +9,8 @@ import net.imagej.mesh.Mesh;
 import net.imagej.mesh.naive.NaiveDoubleMesh;
 import net.imagej.ops.OpService;
 import net.imagej.ops.geom.geom3d.DefaultConvexHull3D;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.type.numeric.RealType;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
@@ -44,18 +46,25 @@ public class CreateMesh implements Command {
         /* Create a ConvexHulls of controlPoints */
         mesh = new NaiveDoubleMesh();
 
-        resolution[0] = 1;
-        resolution[1] = 1;
-        resolution[2] = 1;
+//        resolution[0] = 1;
+//        resolution[1] = 1;
+//        resolution[2] = 1;
+
+        long numChannels = img.dimension(2);
+        long numZ = img.dimension(3);
+        long numTime = img.dimension(4);
 
         logService.info("Populating point set");
         for(Roi r : roiManager.getRoisAsArray() ) {
             if( r instanceof PointRoi) {
                 Point p = r.iterator().next();
-                float sf = 0.01f;
-                float x = (float) (p.x * resolution[0]);
-                float y = (float) (p.y * resolution[1]);
-                float z = (float) (((PointRoi) r).getPointPosition(0) * resolution[2]);
+
+                float x = p.x / resolution[0];
+                float y = p.y / resolution[1];
+
+                // TODO: create a sanity check that listens to ROIs, and prints natural coords + the pointposition
+
+                float z = convertPointPositionToZ(img, ((PointRoi) r).getPointPosition(0));
                 mesh.vertices().add(x, y, z);
 
                 //System.out.println("V: " + x + " " + y + " " + z);
@@ -66,6 +75,16 @@ public class CreateMesh implements Command {
 
         final List<?> result = (List<?>) opService.run(DefaultConvexHull3D.class, mesh );
         mesh = (Mesh) result.get(0);
+    }
+
+    private float convertPointPositionToZ(RandomAccessibleInterval<RealType<?>> img, int pointPosition) {
+        // This function has an issue with handling positions at multiple timepoints
+        // ImageJ uses XY CZT order
+
+
+
+        //System.out.println(pointPosition + " " + img.dimension(2) + " " + img.dimension(3) + " " + pointPosition / img.dimension(3) + " " + pointPosition / img.dimension(2) + " " + pointPosition / 204 + " " + pointPosition % 204 + " " + pointPosition % img.dimension(2));
+        return pointPosition;
     }
 
     public LogService getLogService() {
