@@ -1,13 +1,17 @@
 package com.capsidaho.heartcrop;
 
+import ij.Executer;
 import ij.IJ;
 import net.imagej.Dataset;
 import net.imagej.mesh.Mesh;
 import net.imagej.mesh.Vertex;
 import net.imglib2.Cursor;
+import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
 import net.imglib2.RealPoint;
 import net.imglib2.roi.RealMask;
+import net.imglib2.view.IntervalView;
+import net.imglib2.view.Views;
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
@@ -16,6 +20,9 @@ import visad.Irregular3DSet;
 import visad.RealTupleType;
 import visad.RealType;
 import visad.VisADException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @Plugin(type = Command.class, label = "Heart Crop - Crop")
 public class Crop implements Command {
@@ -31,6 +38,13 @@ public class Crop implements Command {
     @Override
     public void run() {
         Dataset croppedImg = img;
+
+        float[] resolution = new float[img.numDimensions()];
+        for( int d = 0; d < resolution.length; d++ ) {
+            resolution[d] = (float) img.axis(d).averageScale(0, 1);
+        }
+
+        logService.info("Resolution: " + Arrays.toString(resolution));
 
         long vertexCount = mesh.vertices().size();
 		if (vertexCount > Integer.MAX_VALUE) throw new RuntimeException("Hull too large");
@@ -51,9 +65,9 @@ public class Crop implements Command {
 		    float y = vertex.yf();
 		    float z = vertex.zf();
 
-			samples[0][i] = x;
-			samples[1][i] = y;
-			samples[2][i] = z;
+			samples[0][i] = x * resolution[0];
+			samples[1][i] = y * resolution[1];
+			samples[2][i] = z * resolution[2];
 			i++;
 		}
 		logService.info( "Min: " + minX + " " + minY + " " + minZ + " -> " + maxX + " " + maxY + " " + maxZ );
@@ -116,27 +130,70 @@ public class Crop implements Command {
 				//System.out.println(point + " -> " + roi.test(point));
 			}
 		}
-		Tester t = new Tester();
 
 		// Perform the actual crop
-		Cursor<net.imglib2.type.numeric.RealType<?>> cur = croppedImg.cursor();
-		double[] p = new double[4];
 
-		int lastReport = -1;
+		long[] dims = new long[croppedImg.numDimensions()];
+		croppedImg.dimensions(dims);
+		logService.info("Dimensions: " + Arrays.toString(dims));
 
-		System.out.println("Starting crop of " + croppedImg.dimension(3) + " timesteps");
-		while(cur.hasNext()) {
-		    cur.next();
-		    cur.localize(p);
+		// Parallelize
+		int numThreads = Runtime.getRuntime().availableProcessors() - 1;
 
-		    if( lastReport < (int) p[3] ) {
-                IJ.showProgress((int) p[3], (int) croppedImg.dimension(3));
-                System.out.println((int) p[3] + " of " + (int) croppedImg.dimension(3));
-                lastReport = (int) p[3];
-            }
+		ArrayList<Thread> threads = new ArrayList<Thread>();
+		for( int threadId = 0; threadId < numThreads; threadId++ ) {
 
-		    if( !t.inside(p) ) cur.get().setZero();
-        }
+			int finalThreadId = threadId;
+
+			Tester t = new Tester();// testers need to be per thread
+			Thread thread = new Thread() {
+
+				@Override
+				public void run() {
+					super.run();
+
+					int count = 0;
+					int current = count * numThreads + finalThreadId;
+					// loop over frames
+					while( ( current = count * numThreads + finalThreadId ) < croppedImg.dimension(3) ) {
+
+						IntervalView<net.imglib2.type.numeric.RealType<?>> view = Views.hyperSlice(croppedImg, 3, current);
+
+						Cursor<net.imglib2.type.numeric.RealType<?>> cur = view.cursor();
+						double[] p = new double[4];
+
+						System.out.println("cropping " + current + " of " + croppedImg.dimension(3));
+						while (cur.hasNext()) {
+							cur.next();
+							cur.localize(p);
+
+							if (!t.inside(p)) cur.get().setZero();
+						}
+
+						count++;
+					}
+
+				}
+			};
+
+			thread.start();
+			threads.add(thread);
+		}
+
+		// Block until done
+		while( threads.size() > 0 ) {
+			if( threads.get(0).isAlive() ) {
+				try {
+					Thread.sleep(20);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			} else {
+				threads.remove(0);
+			}
+
+		}
+
     }
 
     public Dataset getImg() {
