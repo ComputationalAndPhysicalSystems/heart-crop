@@ -31,7 +31,10 @@ package com.capsidaho.heartcrop;
 import graphics.scenery.Node;
 import graphics.scenery.volumes.Volume;
 import ij.IJ;
+import ij.ImagePlus;
+import ij.WindowManager;
 import ij.gui.PointRoi;
+import ij.gui.Roi;
 import ij.plugin.frame.RoiManager;
 import net.imagej.Dataset;
 import net.imagej.mesh.Mesh;
@@ -40,17 +43,31 @@ import org.scijava.command.Command;
 import org.scijava.command.CommandModule;
 import org.scijava.command.CommandService;
 import org.scijava.command.InteractiveCommand;
+import org.scijava.display.Display;
+import org.scijava.display.DisplayService;
+import org.scijava.display.event.input.InputEvent;
+import org.scijava.display.event.input.KyEvent;
+import org.scijava.display.event.input.KyReleasedEvent;
+import org.scijava.event.EventHandler;
+import org.scijava.event.SciJavaEvent;
 import org.scijava.io.IOService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.table.DefaultIntTable;
+import org.scijava.table.Table;
 import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +95,9 @@ import static sc.iview.commands.MenuWeights.DEMO;
 public class HeartCropMenu extends InteractiveCommand {
 
     @Parameter
+    private DisplayService dService;
+
+    @Parameter
     private UIService uiService;
 
     @Parameter
@@ -95,6 +115,15 @@ public class HeartCropMenu extends InteractiveCommand {
     @Parameter
     private CommandService command;
 
+    @Parameter
+    private File imageFile;
+
+    @Parameter(callback = "openImage")
+    private Button openImage;
+
+    @Parameter(callback = "debugTest")
+    private Button debugTest;
+
     @Parameter(callback = "createMesh")
     private Button createMesh;
 
@@ -104,11 +133,11 @@ public class HeartCropMenu extends InteractiveCommand {
     @Parameter(callback = "generateMask")
     private Button generateMask;
 
-    @Parameter
-    private Dataset img;
-
     @Parameter(callback = "crop")
     private Button crop;
+
+    // We will handle opening our own dataset
+    private Dataset img = null;
 
     private RoiManager roiManager;
     private Dataset croppedImg = null;
@@ -119,15 +148,83 @@ public class HeartCropMenu extends InteractiveCommand {
     private Node currentMeshNode = null;
 
     private Mesh cropMesh = null;
+    private Display<?> display = null;
+    private ImagePlus imp = null;
+    private Table table;
+    private Display<Table> tableDisplay = null;
 
     @Override
     public void initialize() {
         roiManager = RoiManager.getRoiManager();
 
         IJ.setTool("point");
-        JOptionPane.showMessageDialog(null, "Select points to use in crop by clicking at the x,y,z location\nPress t to add each point (pointROI has been preselected).\nWhen complete createMesh");
+
+        // Tutorial message
+        //JOptionPane.showMessageDialog(null, "Select points to use in crop by clicking at the x,y,z location\nPress t to add each point (pointROI has been preselected).\nWhen complete createMesh");
 
         scPoints = new HashMap<>();
+    }
+
+    public void openImage() throws IOException {
+        img = (Dataset) ioService.open( imageFile.getAbsolutePath() );
+
+        display = dService.createDisplay( imageFile.getName(), img );
+
+        imp = WindowManager.getImage(imageFile.getName());
+
+        KeyListener keyListener = new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent keyEvent) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent keyEvent) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent keyEvent) {
+                if (keyEvent.getKeyChar() == 'q') {
+                    System.out.println("Caught event 'q': " + imp);
+                    addCurrentPoint();
+                }
+            }
+        };
+
+        imp.getCanvas().addKeyListener(keyListener);
+        imp.getWindow().addKeyListener(keyListener);
+    }
+
+    private void addCurrentPoint() {
+        int x = ((PointRoi) imp.getRoi()).getContainedPoints()[0].x;
+        int y = ((PointRoi) imp.getRoi()).getContainedPoints()[0].y;
+        int z = imp.getZ();
+
+
+        System.out.println("x " + x + " y " + y + " z " + z + " roi " + imp.getRoi());
+
+        String tableName = imageFile.getName() + "_points";
+
+        if( table == null ) {
+            table = new DefaultIntTable();
+            table.appendColumn("x");
+            table.appendColumn("y");
+            table.appendColumn("z");
+            //uiService.show(tableName, table);
+            tableDisplay = (Display<Table>) dService.createDisplay(tableName, table);
+            //uiService.show(table);
+        }
+
+        int rc = table.getRowCount();
+
+        table.appendRow();
+        table.set(0, rc, x);
+        table.set(1, rc, y);
+        table.set(2, rc, z);
+
+        tableDisplay.update();
+        //uiService.getUI(tableName).show(table);
     }
 
     // I expect IJ2 to work like this
@@ -151,6 +248,30 @@ public class HeartCropMenu extends InteractiveCommand {
 //        cropMesh = (Mesh) result.getOutput("mesh");
 //        System.out.println("Mesh created: " + cropMesh);
 //    }
+
+    public void debugTest() {
+        roiManager = RoiManager.getRoiManager();
+
+        long numChannels = img.dimension(2);
+        long numZ = img.dimension(3);
+        long numTime = img.dimension(4);
+
+        logService.info("Populating point set");
+        for(Roi r : roiManager.getRoisAsArray() ) {
+            if (r instanceof PointRoi) {
+                Point p = r.iterator().next();
+
+                float x = p.x / resolution[0];
+                float y = p.y / resolution[1];
+
+                // TODO: create a sanity check that listens to ROIs, and prints natural coords + the pointposition
+
+                float z = ((PointRoi) r).getPointPosition(0);
+
+                System.out.println(x + " " + y + " " + z);
+            }
+        }
+    }
 
     public void createMesh() {
         CreateMesh cm = new CreateMesh();
@@ -204,17 +325,41 @@ public class HeartCropMenu extends InteractiveCommand {
 
     public void visualize() {
 
-        JOptionPane.showMessageDialog(null, "Visualization temporarily disabled");
-        return;
+//        JOptionPane.showMessageDialog(null, "Visualization temporarily disabled");
+//        return;
 
-//        Visualize v = new Visualize();
-//
-//        v.setImg(img);
-//        v.setMesh(currentMesh);
-//        v.setResolution(resolution);
-//        v.setSciViewService(sciViewService);
-//
-//        v.run();
+        Visualize v = new Visualize();
+
+        v.setImg(img);
+        v.setMesh(currentMesh);
+        v.setResolution(resolution);
+        v.setSciViewService(sciViewService);
+
+        v.run();
+    }
+
+    @EventHandler
+    protected void onInput(InputEvent event) {
+        System.out.println("Caught event");
+        if( event instanceof KyReleasedEvent ) {
+            KyReleasedEvent kre = (KyReleasedEvent) event;
+            if( kre.getCharacter() == 't' ) {
+                ImagePlus imp = WindowManager.getImage(imageFile.getName());
+                System.out.println("Caught event 't': " + imp);
+            }
+        }
+    }
+
+    @EventHandler
+    protected void onEvent(SciJavaEvent event) {
+        System.out.println("Caught event " + event);
+        if( event instanceof KyReleasedEvent ) {
+            KyReleasedEvent kre = (KyReleasedEvent) event;
+            if( kre.getCharacter() == 't' ) {
+                ImagePlus imp = WindowManager.getImage(imageFile.getName());
+                System.out.println("Caught event 't': " + imp);
+            }
+        }
     }
 
     @Override

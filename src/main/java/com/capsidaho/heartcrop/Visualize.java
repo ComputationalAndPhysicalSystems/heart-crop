@@ -61,22 +61,21 @@ public class Visualize implements Command {
 
     @Override
     public void run() {
-        SciView sciView = sciViewService.getOrCreateActiveSciView();
+        SciView sciView = null;
+        try {
+            sciView = sciViewService.getOrCreateActiveSciView();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         roiManager = RoiManager.getRoiManager();
 
-        IterableInterval<RealType> frame = Views.hyperSlice((RandomAccessibleInterval) img, 3, 0);
+        RandomAccessibleInterval<RealType> frame = Views.hyperSlice((RandomAccessibleInterval) img, 3, 0);
 
-        while( !sciView.isInitialized() ) {
-            try {
-                Thread.sleep(20);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        sciView.waitForSceneInitialisation();
 
         //sciView.animate(1, this::syncRoiManager );
-        sciView.addVolume(frame, "img", new float[]{(float) resolution[0], (float) resolution[1], (float) resolution[2]});
+        sciView.addVolume(frame, "img", (float) resolution[0], (float) resolution[1], (float) resolution[2]);
 
         syncRoiManager();
 
