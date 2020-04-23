@@ -53,7 +53,6 @@ public class Visualize implements Command {
 
         sciView.waitForSceneInitialisation();
 
-        //sciView.animate(1, this::syncRoiManager );
         sciView.addVolume(frame, "img", (float) resolution[0], (float) resolution[1], (float) resolution[2]);
     }
 

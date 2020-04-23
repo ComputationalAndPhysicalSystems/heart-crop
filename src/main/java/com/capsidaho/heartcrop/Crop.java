@@ -65,9 +65,9 @@ public class Crop implements Command {
 		    float y = vertex.yf();
 		    float z = vertex.zf();
 
-			samples[0][i] = x * resolution[0];
-			samples[1][i] = y * resolution[1];
-			samples[2][i] = z * resolution[2];
+			samples[0][i] = x;// * resolution[0];
+			samples[1][i] = y;// * resolution[1];
+			samples[2][i] = z;// * resolution[2];
 			i++;
 		}
 		logService.info( "Min: " + minX + " " + minY + " " + minZ + " -> " + maxX + " " + maxY + " " + maxZ );

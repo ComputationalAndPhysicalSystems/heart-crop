@@ -57,6 +57,7 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.table.DefaultIntTable;
 import org.scijava.table.Table;
+import org.scijava.thread.ThreadService;
 import org.scijava.ui.UIService;
 import org.scijava.widget.Button;
 import sc.iview.SciView;
@@ -116,6 +117,9 @@ public class HeartCropMenu extends InteractiveCommand {
     private CommandService command;
 
     @Parameter
+    private ThreadService thread;
+
+    @Parameter
     private File imageFile;
 
     @Parameter(callback = "openImage")
@@ -126,9 +130,6 @@ public class HeartCropMenu extends InteractiveCommand {
 
     @Parameter(callback = "loadPoints")
     private Button loadPoints;
-
-    @Parameter(callback = "debugTest")
-    private Button debugTest;
 
     @Parameter(callback = "createMesh")
     private Button createMesh;
@@ -159,6 +160,7 @@ public class HeartCropMenu extends InteractiveCommand {
     private Table table;
     private Display<Table> tableDisplay = null;
 
+
     @Override
     public void initialize() {
         roiManager = RoiManager.getRoiManager();
@@ -180,7 +182,46 @@ public class HeartCropMenu extends InteractiveCommand {
     }
 
     public void loadPoints() {
+        HashMap<String, Object> argmap = new HashMap<>();
 
+        Future<CommandModule> res = command.run(OpenPoints.class, true, argmap);
+
+        System.out.println("Waiting for result");
+        thread.run(() -> {
+            try {
+                table = (Table) res.get().getOutput("table");
+
+                System.out.println("Table is: " + table);
+
+                tableDisplay = (Display<Table>) dService.getDisplay("table");
+
+                //tableDisplay = (Display<Table>) dService.createDisplay("loadedTable", table);
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        });
+
+//        System.out.println("waiting for res");
+//        while( !res.isCancelled() && !res.isDone() ) {
+//            try {
+//                Thread.sleep(20);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//                return;
+//            }
+//        }
+//        System.out.println("done waiting for res");
+//
+//        try {
+//            table = (Table) res.get().getOutput("table");
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void openImage() throws IOException {
@@ -267,30 +308,6 @@ public class HeartCropMenu extends InteractiveCommand {
 //        System.out.println("Mesh created: " + cropMesh);
 //    }
 
-    public void debugTest() {
-        roiManager = RoiManager.getRoiManager();
-
-        long numChannels = img.dimension(2);
-        long numZ = img.dimension(3);
-        long numTime = img.dimension(4);
-
-        logService.info("Populating point set");
-        for(Roi r : roiManager.getRoisAsArray() ) {
-            if (r instanceof PointRoi) {
-                Point p = r.iterator().next();
-
-                float x = p.x / resolution[0];
-                float y = p.y / resolution[1];
-
-                // TODO: create a sanity check that listens to ROIs, and prints natural coords + the pointposition
-
-                float z = ((PointRoi) r).getPointPosition(0);
-
-                System.out.println(x + " " + y + " " + z);
-            }
-        }
-    }
-
     public void createMesh() {
         CreateMesh cm = new CreateMesh();
 
@@ -303,6 +320,7 @@ public class HeartCropMenu extends InteractiveCommand {
         cm.setResolution(resolution);
         cm.setLogService(logService);
         cm.setOpService(opService);
+        cm.setTable(table);
 
         cm.run();
 

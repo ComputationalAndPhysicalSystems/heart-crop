@@ -138,7 +138,6 @@ public class GenerateMask implements Command {
 
 		int lastReport = -1;
 
-		System.out.println("Starting crop of " + croppedImg.dimension(3) + " timesteps");
 		while(cur.hasNext()) {
 		    cur.next();
 		    cur.localize(p);

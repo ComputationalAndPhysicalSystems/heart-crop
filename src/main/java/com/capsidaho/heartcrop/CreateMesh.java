@@ -10,12 +10,14 @@ import net.imagej.mesh.naive.NaiveDoubleMesh;
 import net.imagej.ops.OpService;
 import net.imagej.ops.geom.geom3d.DefaultConvexHull3D;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.RealLocalizable;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.table.Table;
 
 import java.awt.*;
 import java.util.List;
@@ -37,11 +39,11 @@ public class CreateMesh implements Command {
     @Parameter(type = ItemIO.OUTPUT)
     private Mesh mesh;
 
-    private RoiManager roiManager;
+    @Parameter
+    private Table table;
 
     @Override
     public void run() {
-        roiManager = RoiManager.getRoiManager();
 
         /* Create a ConvexHulls of controlPoints */
         mesh = new NaiveDoubleMesh();
@@ -54,21 +56,15 @@ public class CreateMesh implements Command {
         long numZ = img.dimension(3);
         long numTime = img.dimension(4);
 
+        List<RealLocalizable> l = Utils.fromTable(table);
+
         logService.info("Populating point set");
-        for(Roi r : roiManager.getRoisAsArray() ) {
-            if( r instanceof PointRoi) {
-                Point p = r.iterator().next();
+        for( RealLocalizable p : l ) {
+            float x = p.getFloatPosition(0);
+            float y = p.getFloatPosition(1);
+            float z = p.getFloatPosition(2);
 
-                float x = p.x / resolution[0];
-                float y = p.y / resolution[1];
-
-                // TODO: create a sanity check that listens to ROIs, and prints natural coords + the pointposition
-
-                float z = convertPointPositionToZ(img, ((PointRoi) r).getPointPosition(0));
-                mesh.vertices().add(x, y, z);
-
-                //System.out.println("V: " + x + " " + y + " " + z);
-            }
+            mesh.vertices().add(x, y, z);
         }
 
         logService.info("Generating mesh");
@@ -125,5 +121,9 @@ public class CreateMesh implements Command {
 
     public void setMesh(Mesh mesh) {
         this.mesh = mesh;
+    }
+
+    public void setTable(Table table) {
+        this.table = table;
     }
 }
