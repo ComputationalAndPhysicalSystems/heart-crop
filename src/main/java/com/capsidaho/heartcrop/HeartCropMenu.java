@@ -121,6 +121,12 @@ public class HeartCropMenu extends InteractiveCommand {
     @Parameter(callback = "openImage")
     private Button openImage;
 
+    @Parameter(callback = "savePoints")
+    private Button savePoints;
+
+    @Parameter(callback = "loadPoints")
+    private Button loadPoints;
+
     @Parameter(callback = "debugTest")
     private Button debugTest;
 
@@ -163,6 +169,18 @@ public class HeartCropMenu extends InteractiveCommand {
         //JOptionPane.showMessageDialog(null, "Select points to use in crop by clicking at the x,y,z location\nPress t to add each point (pointROI has been preselected).\nWhen complete createMesh");
 
         scPoints = new HashMap<>();
+    }
+
+    public void savePoints() {
+        HashMap<String, Object> argmap = new HashMap<>();
+
+        argmap.put("table", table);
+
+        command.run(SavePoints.class, true, argmap);
+    }
+
+    public void loadPoints() {
+
     }
 
     public void openImage() throws IOException {
