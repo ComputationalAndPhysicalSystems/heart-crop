@@ -175,7 +175,10 @@ public class HeartCropMenu extends InteractiveCommand {
         KeyListener keyListener = new KeyListener() {
             @Override
             public void keyTyped(KeyEvent keyEvent) {
-
+                if (keyEvent.getKeyChar() == 'q') {
+                    //System.out.println("Caught event 'q': " + imp);
+                    addCurrentPoint();
+                }
             }
 
             @Override
@@ -185,10 +188,7 @@ public class HeartCropMenu extends InteractiveCommand {
 
             @Override
             public void keyReleased(KeyEvent keyEvent) {
-                if (keyEvent.getKeyChar() == 'q') {
-                    System.out.println("Caught event 'q': " + imp);
-                    addCurrentPoint();
-                }
+
             }
         };
 

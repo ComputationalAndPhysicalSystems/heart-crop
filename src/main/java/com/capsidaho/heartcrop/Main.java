@@ -58,25 +58,15 @@ public final class Main {
 
 	public static void main(final String... args) {
 		SceneryBase.xinitThreads();
-		//SciView sciView = SciView.createSciView();
-
-		//final ImageJ ij = new ImageJ(sciView.getScijavaContext());
 
 		final ImageJ ij = new ImageJ();
 		ij.launch(args);
 
-
 		String filename = "/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z.tif";
 
 		IJ.setTool("point");
-//
-//        ij.context().service(EventService.class).subscribe(new PointRoiListener());
 
         Map<String, Object> argmap = new HashMap<>();
-        //argmap.put("imageFile", new File(filename));
-
-        //roiManager.runCommand("Open","/home/kharrington/Data/Anjalie/RoiSet2.zip");
-		//roiManager.runCommand("Open","/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z_roiset.zip");
 
 		try {
 			Thread.sleep(200);
@@ -86,49 +76,5 @@ public final class Main {
 
 		ij.command().run("com.capsidaho.heartcrop.HeartCropMenu", true, argmap );
 	}
-
-	// Previous version
-//	public static void main(final String... args) {
-//		SceneryBase.xinitThreads();
-//		//SciView sciView = SciView.createSciView();
-//
-//		//final ImageJ ij = new ImageJ(sciView.getScijavaContext());
-//
-//		final ImageJ ij = new ImageJ();
-//		ij.launch(args);
-//
-//		RoiManager roiManager = RoiManager.getRoiManager();
-//		String filename = "/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z.tif";
-//        //String filename = "/home/kharrington/Data/Anjalie/C1-fish4_z_stack_red.tif";
-//
-//		//String filename = "/home/kharrington/Data/Anjalie/5D_Merged_crop_GFP_original_subset2.tif";
-//
-//        Dataset img = null;
-//        try {
-//        	img = (Dataset) ij.context().service(IOService.class).open(filename);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return;
-//        }
-//
-//        ij.context().service(UIService.class).show(img);
-//        IJ.setTool("point");
-//
-//        ij.context().service(EventService.class).subscribe(new PointRoiListener());
-//
-//        Map<String, Object> argmap = new HashMap<>();
-//        argmap.put("img", img);
-//
-//        //roiManager.runCommand("Open","/home/kharrington/Data/Anjalie/RoiSet2.zip");
-//		roiManager.runCommand("Open","/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z_roiset.zip");
-//
-//		try {
-//			Thread.sleep(200);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//
-//		ij.command().run("com.capsidaho.heartcrop.HeartCropMenu", true, argmap );
-//	}
 
 }

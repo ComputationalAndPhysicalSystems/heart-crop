@@ -13,6 +13,7 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
+import org.joml.Vector3f;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -49,10 +50,10 @@ public class Visualize implements Command {
                 Sphere s = new Sphere(0.02f, 10);
                 Point p = r.iterator().next();
                 float sf = 0.01f;
-                float x = (float) (( p.x - volume.getSizeX()/2 ) * resolution[0] * volume.getPixelToWorldRatio() * sf);
-                float y = (float) (( p.y - volume.getSizeY()/2 ) * resolution[1] * volume.getPixelToWorldRatio() * sf);
-                float z = (float) (( ((PointRoi) r).getPointPosition(0) - volume.getSizeZ()/2 ) * resolution[2] * volume.getPixelToWorldRatio() * sf);
-                s.setPosition(new GLVector(x,y,z));
+                float x = (float) (( p.x - volume.getScale().x()/2 ) * resolution[0] * volume.getPixelToWorldRatio() * sf);
+                float y = (float) (( p.y - volume.getScale().y()/2 ) * resolution[1] * volume.getPixelToWorldRatio() * sf);
+                float z = (float) (( ((PointRoi) r).getPointPosition(0) - volume.getScale().z()/2 ) * resolution[2] * volume.getPixelToWorldRatio() * sf);
+                s.setPosition(new Vector3f(x,y,z));
                 //s.setParent(volume);
                 //sciView.addNode(s,false);
             }
