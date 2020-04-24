@@ -39,6 +39,7 @@ import ij.plugin.frame.RoiManager;
 import net.imagej.Dataset;
 import net.imagej.mesh.Mesh;
 import net.imagej.ops.OpService;
+import org.scijava.Context;
 import org.scijava.command.Command;
 import org.scijava.command.CommandModule;
 import org.scijava.command.CommandService;
@@ -93,55 +94,58 @@ import static sc.iview.commands.MenuWeights.DEMO;
 @Plugin(type = Command.class, label = "Interactive 3D Crop",
         menu = { @Menu(label = "Image"), //
                  @Menu(label = "Interactive 3D Crop") })
-public class HeartCropMenu extends InteractiveCommand {
+public class HeartCropMenu implements Command {
 
     @Parameter
     private DisplayService dService;
 
-    @Parameter
+    //@Parameter
     private UIService uiService;
 
-    @Parameter
+    //@Parameter
     private IOService ioService;
 
-    @Parameter
+    ///@Parameter
     private OpService opService;
 
-    @Parameter
+    //@Parameter
     private LogService logService;
 
-    @Parameter
-    private SciViewService sciViewService;
-
-    @Parameter
+//    @Parameter
     private CommandService command;
 
-    @Parameter
+    //@Parameter
+    private Context context;
+
+    //@Parameter
     private ThreadService thread;
+//
+//    @Parameter
+    //private SciViewService sciViewService;
 
-    @Parameter
-    private File imageFile;
+//    @Parameter
+    private File imageFile = new File("");
 
-    @Parameter(callback = "openImage")
-    private Button openImage;
-
-    @Parameter(callback = "savePoints")
-    private Button savePoints;
-
-    @Parameter(callback = "loadPoints")
-    private Button loadPoints;
-
-    @Parameter(callback = "createMesh")
-    private Button createMesh;
-
-    @Parameter(callback = "visualize")
-    private Button visualize;
-
-    @Parameter(callback = "generateMask")
-    private Button generateMask;
-
-    @Parameter(callback = "crop")
-    private Button crop;
+//    @Parameter(callback = "openImage")
+//    private Button openImage;
+//
+//    @Parameter(callback = "savePoints")
+//    private Button savePoints;
+//
+//    @Parameter(callback = "loadPoints")
+//    private Button loadPoints;
+//
+//    @Parameter(callback = "createMesh")
+//    private Button createMesh;
+//
+//    @Parameter(callback = "visualize")
+//    private Button visualize;
+//
+//    @Parameter(callback = "generateMask")
+//    private Button generateMask;
+//
+//    @Parameter(callback = "crop")
+//    private Button crop;
 
     // We will handle opening our own dataset
     private Dataset img = null;
@@ -161,17 +165,25 @@ public class HeartCropMenu extends InteractiveCommand {
     private Display<Table> tableDisplay = null;
 
 
-    @Override
-    public void initialize() {
-        roiManager = RoiManager.getRoiManager();
-
-        IJ.setTool("point");
-
-        // Tutorial message
-        //JOptionPane.showMessageDialog(null, "Select points to use in crop by clicking at the x,y,z location\nPress t to add each point (pointROI has been preselected).\nWhen complete createMesh");
-
-        scPoints = new HashMap<>();
-    }
+    //@Override
+//    public void initialize() {
+////        IJ.setTool("point");
+////
+////        // Tutorial message
+////        //JOptionPane.showMessageDialog(null, "Select points to use in crop by clicking at the x,y,z location\nPress t to add each point (pointROI has been preselected).\nWhen complete createMesh");
+////
+////        scPoints = new HashMap<>();
+////
+////        System.out.println("display service " + dService);
+////        System.out.println("service " + uiService);
+////        System.out.println("service " + ioService);
+////        System.out.println("service " + opService);
+////        System.out.println("service " + logService);
+////        System.out.println("service " + thread);
+////        //System.out.println("service " + sciViewService);
+////
+////        command = context.getService(CommandService.class);
+//    }
 
     public void savePoints() {
         HashMap<String, Object> argmap = new HashMap<>();
@@ -369,7 +381,7 @@ public class HeartCropMenu extends InteractiveCommand {
         v.setImg(img);
         v.setMesh(currentMesh);
         v.setResolution(resolution);
-        v.setSciViewService(sciViewService);
+        //v.setSciViewService(sciViewService);
 
         v.run();
     }
@@ -398,9 +410,24 @@ public class HeartCropMenu extends InteractiveCommand {
         }
     }
 
-    @Override
+    //@Override
     public void cancel() {
         // Clear up variables?
     }
 
+    @Override
+    public void run() {
+        System.out.println("Launch heart crop");
+
+                System.out.println("display service " + dService);
+        System.out.println("service " + uiService);
+        System.out.println("service " + ioService);
+        System.out.println("service " + opService);
+        System.out.println("service " + logService);
+        System.out.println("service " + thread);
+
+
+//        initialize();
+
+    }
 }

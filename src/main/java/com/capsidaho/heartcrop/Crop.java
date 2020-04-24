@@ -14,6 +14,7 @@ import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
+import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import visad.Irregular3DSet;
@@ -24,7 +25,10 @@ import visad.VisADException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-@Plugin(type = Command.class, label = "Heart Crop - Crop")
+@Plugin(type = Command.class, label = "Heart Crop - Crop",
+        menu = { @Menu(label = "Plugins"), //
+                 @Menu(label = "Interactive 3D Crop"),
+                 @Menu(label = "Crop") })
 public class Crop implements Command {
     @Parameter
     private Dataset img;

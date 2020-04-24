@@ -17,6 +17,7 @@ import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.view.Views;
 import org.scijava.command.Command;
 import org.scijava.log.LogService;
+import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import visad.Irregular3DSet;
@@ -24,7 +25,10 @@ import visad.RealTupleType;
 import visad.RealType;
 import visad.VisADException;
 
-@Plugin(type = Command.class, label = "Heart Crop - Crop")
+@Plugin(type = Command.class, label = "Heart Crop - Crop",
+        menu = { @Menu(label = "Plugins"), //
+                 @Menu(label = "Interactive 3D Crop"),
+                 @Menu(label = "Generate Mask") })
 public class GenerateMask implements Command {
     @Parameter
     private Dataset img;
@@ -105,7 +109,7 @@ public class GenerateMask implements Command {
 					int[] tri = finalSet.valueToTri(v);
 					return tri[0] >= 0;
 				}
-				catch (VisADException exc) {
+				catch (Exception exc) {
 					throw new RuntimeException(exc);
 				}
 			}

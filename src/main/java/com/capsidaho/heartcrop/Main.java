@@ -37,8 +37,16 @@ import ij.plugin.frame.RoiManager;
 import io.scif.SCIFIOService;
 import net.imagej.Dataset;
 import net.imagej.ImageJ;
+import net.imagej.ops.OpService;
+import org.scijava.Context;
+import org.scijava.command.CommandService;
+import org.scijava.display.DisplayService;
 import org.scijava.event.EventService;
+import org.scijava.io.DefaultIOService;
 import org.scijava.io.IOService;
+import org.scijava.log.LogService;
+import org.scijava.service.SciJavaService;
+import org.scijava.thread.ThreadService;
 import org.scijava.ui.UIService;
 import sc.iview.SciView;
 
@@ -59,22 +67,25 @@ public final class Main {
 	public static void main(final String... args) {
 		SceneryBase.xinitThreads();
 
-		final ImageJ ij = new ImageJ();
+		Context context = new Context(DefaultIOService.class, UIService.class, SciJavaService.class, DisplayService.class, LogService.class, CommandService.class, ThreadService.class, OpService.class);
+
+		final ImageJ ij = new ImageJ(context);
 		ij.launch(args);
+		ij.ui().showUI();
 
-		String filename = "/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z.tif";
-
-		IJ.setTool("point");
-
-        Map<String, Object> argmap = new HashMap<>();
-
-		try {
-			Thread.sleep(200);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		ij.command().run("com.capsidaho.heartcrop.HeartCropMenu", true, argmap );
+//		String filename = "/home/kharrington/Data/Anjalie/CJ_volume_for_Kyle/190417_4D_full_Z.tif";
+//
+//		IJ.setTool("point");
+//
+//        Map<String, Object> argmap = new HashMap<>();
+//
+//		try {
+//			Thread.sleep(200);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
+//
+//		ij.command().run("com.capsidaho.heartcrop.HeartCropMenu", true, argmap );
 	}
 
 }

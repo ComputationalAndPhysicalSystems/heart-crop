@@ -12,9 +12,12 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
+import org.scijava.display.Display;
+import org.scijava.display.DisplayService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.plugin.Menu;
 import org.scijava.table.Table;
 
 import java.awt.*;
@@ -24,7 +27,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-@Plugin(type = Command.class, label = "Heart Crop - SavePoints")
+@Plugin(type = Command.class, label = "Heart Crop - SavePoints",
+        menu = { @Menu(label = "Plugins"), //
+                 @Menu(label = "Interactive 3D Crop"),
+                 @Menu(label = "Save Crop Points") })
 public class SavePoints implements Command {
     @Parameter
     private LogService logService;
@@ -33,14 +39,31 @@ public class SavePoints implements Command {
     private OpService opService;
 
     @Parameter
-    private Table table;
+    private DisplayService displayService;
+
+    @Parameter(required = false)
+    private Table table = null;
 
     @Parameter(style="save")
-    private File file;
+    private File file = null;
 
     @Override
     public void run() {
         BufferedWriter w;
+
+        if( table == null ) {
+            String tableName = "interactive3DCrop";
+
+            Display<Table> tableDisplay = (Display<Table>) displayService.getDisplay(tableName);
+            if( tableDisplay != null ) {
+                table = tableDisplay.get(0);
+            }
+        }
+
+        if( table == null ) {
+            logService.error("Cannot find table");
+            return;
+        }
 
         try {
             w = new BufferedWriter(new FileWriter(file));

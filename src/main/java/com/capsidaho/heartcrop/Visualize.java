@@ -17,12 +17,16 @@ import org.joml.Vector3f;
 import org.scijava.command.Command;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.plugin.Menu;
 import sc.iview.SciView;
 import sc.iview.SciViewService;
 
 import java.awt.*;
 
-@Plugin(type = Command.class, label = "Heart Crop - Crop")
+@Plugin(type = Command.class, label = "Heart Crop - Visualize",
+        menu = { @Menu(label = "Plugins"), //
+                 @Menu(label = "Interactive 3D Crop"),
+                 @Menu(label = "Visualize") })
 public class Visualize implements Command {
     @Parameter
     private SciViewService sciViewService;

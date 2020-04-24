@@ -17,12 +17,16 @@ import org.scijava.command.Command;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.plugin.Menu;
 import org.scijava.table.Table;
 
 import java.awt.*;
 import java.util.List;
 
-@Plugin(type = Command.class, label = "Heart Crop - CreateMesh")
+@Plugin(type = Command.class, label = "Heart Crop - CreateMesh",
+        menu = { @Menu(label = "Plugins"), //
+                 @Menu(label = "Interactive 3D Crop"),
+                 @Menu(label = "Create Mesh") })
 public class CreateMesh implements Command {
     @Parameter
     private LogService logService;
