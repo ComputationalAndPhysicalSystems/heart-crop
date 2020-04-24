@@ -12,6 +12,7 @@
 	<groupId>com.capsidaho</groupId>
 	<artifactId>heart-crop</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
 	<name>heart-crop</name>
 	<description>This is a demo application for 3D cropping/segmentation of zebrafish hearts.</description>
@@ -136,6 +137,10 @@
 			<groupId>net.imagej</groupId>
 			<artifactId>imagej</artifactId>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>net.imagej</groupId>-->
+<!--			<artifactId>imagej-legacy</artifactId>-->
+<!--		</dependency>-->
 
 		<!-- SCIFIO dependencies -->
 		<dependency>
@@ -244,6 +249,29 @@
 					<hideTransitive>false</hideTransitive>
 				</configuration>
 			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-shade-plugin</artifactId>-->
+<!--				<version>2.4.3</version>-->
+<!--				<executions>-->
+<!--				  <execution>-->
+<!--					<phase>package</phase>-->
+<!--					<goals>-->
+<!--						<goal>shade</goal>-->
+<!--					</goals>-->
+<!--					<configuration>-->
+<!--						<transformers>-->
+<!--							<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+<!--								<manifestEntries>-->
+<!--									<Main-Class>com.capsidaho.heartcrop.Main</Main-Class>-->
+<!--									<Build-Number>1.0</Build-Number>-->
+<!--								</manifestEntries>-->
+<!--							</transformer>-->
+<!--						</transformers>-->
+<!--					</configuration>-->
+<!--				  </execution>-->
+<!--				</executions>-->
+<!--			</plugin>-->
 		</plugins>
 	</build>
 
@@ -546,6 +574,7 @@
 					<classifier>sources</classifier>
 				</dependency>
 			</dependencies>
+
 			<build>
 				<plugins>
 					<plugin>
@@ -630,6 +659,8 @@
 							<fail>false</fail>
 						</configuration>
 					</plugin>
+
+
 				</plugins>
 			</build>
 		</profile>
