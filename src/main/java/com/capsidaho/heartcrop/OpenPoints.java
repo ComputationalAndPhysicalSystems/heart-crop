@@ -52,9 +52,9 @@ public class OpenPoints implements Command {
             if( line != null && line.length() > 0 ) {
                 String[] parts = line.split(",");
 
-                int x = Integer.parseInt(parts[0].strip());
-                int y = Integer.parseInt(parts[1].strip());
-                int z = Integer.parseInt(parts[2].strip());
+                int x = Integer.parseInt(parts[0].trim());
+                int y = Integer.parseInt(parts[1].trim());
+                int z = Integer.parseInt(parts[2].trim());
 
                 table.appendRow();
                 table.set(0, rc, x);
