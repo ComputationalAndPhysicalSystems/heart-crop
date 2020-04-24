@@ -4,7 +4,9 @@ import ij.IJ;
 import net.imagej.Dataset;
 import net.imagej.mesh.Mesh;
 import net.imagej.mesh.Vertex;
+import net.imagej.mesh.naive.NaiveDoubleMesh;
 import net.imagej.ops.OpService;
+import net.imagej.ops.geom.geom3d.DefaultConvexHull3D;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
@@ -16,24 +18,29 @@ import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.type.numeric.real.DoubleType;
 import net.imglib2.view.Views;
 import org.scijava.command.Command;
+import org.scijava.display.Display;
+import org.scijava.display.DisplayService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.table.Table;
 import visad.Irregular3DSet;
 import visad.RealTupleType;
 import visad.RealType;
 import visad.VisADException;
 
+import java.util.List;
+
 @Plugin(type = Command.class, label = "Heart Crop - Crop",
         menu = { @Menu(label = "Plugins"), //
                  @Menu(label = "Interactive 3D Crop"),
-                 @Menu(label = "Generate Mask") })
+                 @Menu(label = "4 Generate Mask") })
 public class GenerateMask implements Command {
     @Parameter
     private Dataset img;
 
-    @Parameter
+    @Parameter(required = false)
     private Mesh mesh;
 
     @Parameter
@@ -42,6 +49,9 @@ public class GenerateMask implements Command {
     @Parameter
     private OpService opService;
 
+    @Parameter
+	private DisplayService displayService;
+
     @Override
     public void run() {
         Dataset croppedImg = img;
@@ -49,6 +59,40 @@ public class GenerateMask implements Command {
         System.out.println(img.dimension(0) + " " + img.dimension(1) + " " + img.dimension(2) + " " + img.dimension(3));
 
         Img<UnsignedByteType> mask = opService.create().img(Views.hyperSlice(img, 3, 0), new UnsignedByteType());
+
+        if( mesh == null ) {
+
+        	mesh = new NaiveDoubleMesh();
+
+			Table table = null;
+			if( table == null ) {
+				String tableName = "interactive3DCrop";
+
+				Display<Table> tableDisplay = (Display<Table>) displayService.getDisplay(tableName);
+				if( tableDisplay != null ) {
+					table = tableDisplay.get(0);
+				}
+			}
+
+			if( table == null ) {
+				logService.error("Cannot find table");
+				return;
+			}
+
+			List<RealLocalizable> l = Utils.fromTable(table);
+
+			logService.info("Populating point set");
+			for( RealLocalizable p : l ) {
+				float x = p.getFloatPosition(0);
+				float y = p.getFloatPosition(1);
+				float z = p.getFloatPosition(2);
+
+				mesh.vertices().add(x, y, z);
+			}
+
+        	final List<?> result = (List<?>) opService.run(DefaultConvexHull3D.class, mesh );
+        	mesh = (Mesh) result.get(0);
+		}
 
         long vertexCount = mesh.vertices().size();
 		if (vertexCount > Integer.MAX_VALUE) throw new RuntimeException("Hull too large");

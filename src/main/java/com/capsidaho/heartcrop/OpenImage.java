@@ -35,7 +35,7 @@ import java.util.List;
 @Plugin(type = Command.class, label = "Heart Crop - Crop Image",
         menu = { @Menu(label = "Plugins"), //
                  @Menu(label = "Interactive 3D Crop"),
-                 @Menu(label = "Open Image") })
+                 @Menu(label = "1 Open Image") })
 public class OpenImage implements Command {
     @Parameter
     private LogService logService;

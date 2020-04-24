@@ -26,7 +26,7 @@ import java.awt.*;
 @Plugin(type = Command.class, label = "Heart Crop - Visualize",
         menu = { @Menu(label = "Plugins"), //
                  @Menu(label = "Interactive 3D Crop"),
-                 @Menu(label = "Visualize") })
+                 @Menu(label = "5 Visualize") })
 public class Visualize implements Command {
     @Parameter
     private SciViewService sciViewService;

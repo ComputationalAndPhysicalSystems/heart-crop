@@ -18,7 +18,7 @@ import java.io.*;
 @Plugin(type = Command.class, label = "Heart Crop - OpenPoints",
         menu = { @Menu(label = "Plugins"), //
                  @Menu(label = "Interactive 3D Crop"),
-                 @Menu(label = "Open Crop Points") })
+                 @Menu(label = "0 Open Crop Points") })
 public class OpenPoints implements Command {
     @Parameter
     private LogService logService;

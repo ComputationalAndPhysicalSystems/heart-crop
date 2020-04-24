@@ -30,7 +30,7 @@ import java.util.List;
 @Plugin(type = Command.class, label = "Heart Crop - SavePoints",
         menu = { @Menu(label = "Plugins"), //
                  @Menu(label = "Interactive 3D Crop"),
-                 @Menu(label = "Save Crop Points") })
+                 @Menu(label = "2 Save Crop Points") })
 public class SavePoints implements Command {
     @Parameter
     private LogService logService;

@@ -14,6 +14,8 @@ import net.imglib2.RealLocalizable;
 import net.imglib2.type.numeric.RealType;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
+import org.scijava.display.Display;
+import org.scijava.display.DisplayService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -26,7 +28,7 @@ import java.util.List;
 @Plugin(type = Command.class, label = "Heart Crop - CreateMesh",
         menu = { @Menu(label = "Plugins"), //
                  @Menu(label = "Interactive 3D Crop"),
-                 @Menu(label = "Create Mesh") })
+                 @Menu(label = "4 Create Mesh") })
 public class CreateMesh implements Command {
     @Parameter
     private LogService logService;
@@ -35,15 +37,18 @@ public class CreateMesh implements Command {
     private OpService opService;
 
     @Parameter
-    private Dataset img;
+    private DisplayService displayService;
 
     @Parameter
-    private float[] resolution;
+    private Dataset img;
+
+//    @Parameter
+//    private float[] resolution;
 
     @Parameter(type = ItemIO.OUTPUT)
     private Mesh mesh;
 
-    @Parameter
+    @Parameter(required = false)
     private Table table;
 
     @Override
@@ -59,6 +64,20 @@ public class CreateMesh implements Command {
         long numChannels = img.dimension(2);
         long numZ = img.dimension(3);
         long numTime = img.dimension(4);
+
+        if( table == null ) {
+            String tableName = "interactive3DCrop";
+
+            Display<Table> tableDisplay = (Display<Table>) displayService.getDisplay(tableName);
+            if( tableDisplay != null ) {
+                table = tableDisplay.get(0);
+            }
+        }
+
+        if( table == null ) {
+            logService.error("Cannot find table");
+            return;
+        }
 
         List<RealLocalizable> l = Utils.fromTable(table);
 
@@ -111,13 +130,13 @@ public class CreateMesh implements Command {
         this.img = img;
     }
 
-    public float[] getResolution() {
-        return resolution;
-    }
-
-    public void setResolution(float[] resolution) {
-        this.resolution = resolution;
-    }
+//    public float[] getResolution() {
+//        return resolution;
+//    }
+//
+//    public void setResolution(float[] resolution) {
+//        this.resolution = resolution;
+//    }
 
     public Mesh getMesh() {
         return mesh;

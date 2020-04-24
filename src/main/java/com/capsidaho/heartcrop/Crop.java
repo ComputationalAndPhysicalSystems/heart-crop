@@ -5,6 +5,9 @@ import ij.IJ;
 import net.imagej.Dataset;
 import net.imagej.mesh.Mesh;
 import net.imagej.mesh.Vertex;
+import net.imagej.mesh.naive.NaiveDoubleMesh;
+import net.imagej.ops.OpService;
+import net.imagej.ops.geom.geom3d.DefaultConvexHull3D;
 import net.imglib2.Cursor;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealLocalizable;
@@ -13,10 +16,13 @@ import net.imglib2.roi.RealMask;
 import net.imglib2.view.IntervalView;
 import net.imglib2.view.Views;
 import org.scijava.command.Command;
+import org.scijava.display.Display;
+import org.scijava.display.DisplayService;
 import org.scijava.log.LogService;
 import org.scijava.plugin.Menu;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.table.Table;
 import visad.Irregular3DSet;
 import visad.RealTupleType;
 import visad.RealType;
@@ -24,16 +30,23 @@ import visad.VisADException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @Plugin(type = Command.class, label = "Heart Crop - Crop",
         menu = { @Menu(label = "Plugins"), //
                  @Menu(label = "Interactive 3D Crop"),
-                 @Menu(label = "Crop") })
+                 @Menu(label = "3 Crop") })
 public class Crop implements Command {
+	@Parameter
+	private DisplayService displayService;
+
+	@Parameter
+	private OpService opService;
+
     @Parameter
     private Dataset img;
 
-    @Parameter
+    @Parameter(required = false)
     private Mesh mesh;
 
     @Parameter
@@ -42,6 +55,40 @@ public class Crop implements Command {
     @Override
     public void run() {
         Dataset croppedImg = img;
+
+        if( mesh == null ) {
+
+        	mesh = new NaiveDoubleMesh();
+
+			Table table = null;
+			if( table == null ) {
+				String tableName = "interactive3DCrop";
+
+				Display<Table> tableDisplay = (Display<Table>) displayService.getDisplay(tableName);
+				if( tableDisplay != null ) {
+					table = tableDisplay.get(0);
+				}
+			}
+
+			if( table == null ) {
+				logService.error("Cannot find table");
+				return;
+			}
+
+			List<RealLocalizable> l = Utils.fromTable(table);
+
+			logService.info("Populating point set");
+			for( RealLocalizable p : l ) {
+				float x = p.getFloatPosition(0);
+				float y = p.getFloatPosition(1);
+				float z = p.getFloatPosition(2);
+
+				mesh.vertices().add(x, y, z);
+			}
+
+        	final List<?> result = (List<?>) opService.run(DefaultConvexHull3D.class, mesh );
+        	mesh = (Mesh) result.get(0);
+		}
 
         float[] resolution = new float[img.numDimensions()];
         for( int d = 0; d < resolution.length; d++ ) {
