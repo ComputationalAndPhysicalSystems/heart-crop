@@ -1,6 +1,7 @@
 package com.capsidaho.heartcrop;
 
 import ij.gui.PointRoi;
+import ij.gui.PolygonRoi;
 import ij.gui.Roi;
 import ij.io.RoiDecoder;
 import ij.plugin.frame.RoiManager;
@@ -59,17 +60,40 @@ public class ImportRoisAsPoints implements Command {
         for( Roi roi : roiManager.getRoisAsArray() ) {
 
             int rc = table.getRowCount();
-            PointRoi pointRoi = (PointRoi) roi;
 
-            Point pt = pointRoi.getContainedPoints()[0];
-            int x = pt.x;
-            int y = pt.y;
-            int z = pointRoi.getZPosition();
+            if( roi instanceof PointRoi ) {
 
-            table.appendRow();
-            table.set(0, rc, x);
-            table.set(1, rc, y);
-            table.set(2, rc, z);
+                PointRoi pointRoi = (PointRoi) roi;
+
+                Point pt = pointRoi.getContainedPoints()[0];
+                int x = pt.x;
+                int y = pt.y;
+                int z = pointRoi.getZPosition();
+
+                table.appendRow();
+                table.set(0, rc, x);
+                table.set(1, rc, y);
+                table.set(2, rc, z);
+            } else if( roi instanceof PolygonRoi ) {
+
+                PolygonRoi polygonRoi = (PolygonRoi) roi;
+
+                int[] xs = polygonRoi.getXCoordinates();
+                int[] ys = polygonRoi.getYCoordinates();
+                int z = polygonRoi.getZPosition();
+
+                for( int k = 0; k < xs.length; k++ ) {
+                    int x = xs[k];
+                    int y = ys[k];
+
+                    table.appendRow();
+                    table.set(0, rc, x);
+                    table.set(1, rc, y);
+                    table.set(2, rc, z);
+
+                }
+
+            }
         }
 
         String tableName = "interactive3DCrop";
