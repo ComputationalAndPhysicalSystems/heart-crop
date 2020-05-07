@@ -74,26 +74,34 @@ public class ImportRoisAsPoints implements Command {
                 table.set(0, rc, x);
                 table.set(1, rc, y);
                 table.set(2, rc, z);
-            } else if( roi instanceof PolygonRoi ) {
-
-                PolygonRoi polygonRoi = (PolygonRoi) roi;
-
-                int[] xs = polygonRoi.getXCoordinates();
-                int[] ys = polygonRoi.getYCoordinates();
-                int z = polygonRoi.getZPosition();
-
-                for( int k = 0; k < xs.length; k++ ) {
-                    int x = xs[k];
-                    int y = ys[k];
-
-                    table.appendRow();
-                    table.set(0, rc, x);
-                    table.set(1, rc, y);
-                    table.set(2, rc, z);
-
+            } else {
+                try {
+                    throw new Exception( "Import Found Roi's that are of an unknown type: " + roi.getClass() );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return;
                 }
-
             }
+//            else if( roi instanceof PolygonRoi ) {
+//
+//                PolygonRoi polygonRoi = (PolygonRoi) roi;
+//
+//                int[] xs = polygonRoi.getXCoordinates();
+//                int[] ys = polygonRoi.getYCoordinates();
+//                int z = polygonRoi.getZPosition();
+//
+//                for( int k = 0; k < xs.length; k++ ) {
+//                    int x = xs[k];
+//                    int y = ys[k];
+//
+//                    table.appendRow();
+//                    table.set(0, rc, x);
+//                    table.set(1, rc, y);
+//                    table.set(2, rc, z);
+//
+//                }
+//
+//            }
         }
 
         String tableName = "interactive3DCrop";
